@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Dieta App</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      width: 200px;
+    }
+    button {
+      padding: 10px;
+      margin-left: 5px;
+    }
+    li {
+      background: #222;
+      margin: 10px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .done {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🍗 Dieta Giornaliera</h1>
+
+<input id="foodInput" placeholder="Aggiungi alimento">
+<button onclick="addFood()">Aggiungi</button>
+
+<ul id="foodList"></ul>
+
+<script>
+let foods = JSON.parse(localStorage.getItem("foods")) || [];
+
+function render() {
+  const list = document.getElementById("foodList");
+  list.innerHTML = "";
+
+  foods.forEach((food, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span onclick="toggleDone(${index})" class="${food.done ? 'done' : ''}">
+        ${food.name}
+      </span>
+      <button onclick="removeFood(${index})">❌</button>
+    `;
+    list.appendChild(li);
+  });
+
+  localStorage.setItem("foods", JSON.stringify(foods));
+}
+
+function addFood() {
+  const input = document.getElementById("foodInput");
+  if (input.value === "") return;
+
+  foods.push({ name: input.value, done: false });
+  input.value = "";
+  render();
+}
+
+function removeFood(index) {
+  foods.splice(index, 1);
+  render();
+}
+
+function toggleDone(index) {
+  foods[index].done = !foods[index].done;
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
