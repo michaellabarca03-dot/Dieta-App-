@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>App Dieta</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #111;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 { color: #00ff88; }
+
+select {
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.box {
+  background: #1c1c1c;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 15px;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin: 5px 0;
+}
+
+#percentuale {
+  margin-top: 20px;
+  font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>App Dieta 🔥</h1>
+
+<select id="giorno" onchange="cambiaGiorno()">
+  <option value="carica">Giorno Carica 💪</option>
+  <option value="scarica">Giorno Scarica 😴</option>
+</select>
+
+<div id="lista"></div>
+
+<div id="percentuale">Completato: 0%</div>
+
+<script>
+
+const dieta = {
+  carica: [
+    "Albume 200g",
+    "Avena 100g",
+    "Banana",
+    "Yogurt 150g",
+    "Mandorle 20g",
+    "Riso 150g",
+    "Pollo/Tacchino 160g",
+    "Uovo",
+    "Verdure 150g",
+    "Patate 700g",
+    "Manzo 150g"
+  ],
+  scarica: [
+    "Albume 200g",
+    "Avena 80g",
+    "Banana",
+    "Yogurt 150g",
+    "Mandorle 20g",
+    "Riso 100g",
+    "Pollo/Tacchino 160g",
+    "Uovo",
+    "Gallette 70g",
+    "Bresaola 100g",
+    "Patate 500g"
+  ]
+};
+
+let stato = JSON.parse(localStorage.getItem("stato")) || {};
+
+function cambiaGiorno() {
+  let giorno = document.getElementById("giorno").value;
+  mostraLista(giorno);
+}
+
+function mostraLista(giorno) {
+  let lista = dieta[giorno];
+  let html = "";
+
+  lista.forEach((item, i) => {
+    let key = giorno + "_" + i;
+    let checked = stato[key] ? "checked" : "";
+
+    html += `
+      <div class="box">
+        <label>
+          <input type="checkbox" onchange="toggle('${key}')" ${checked}>
+          ${item}
+        </label>
+      </div>
+    `;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+  aggiornaPercentuale();
+}
+
+function toggle(key) {
+  stato[key] = !stato[key];
+  localStorage.setItem("stato", JSON.stringify(stato));
+  aggiornaPercentuale();
+}
+
+function aggiornaPercentuale() {
+  let giorno = document.getElementById("giorno").value;
+  let lista = dieta[giorno];
+
+  let fatti = 0;
+
+  lista.forEach((_, i) => {
+    if (stato[giorno + "_" + i]) fatti++;
+  });
+
+  let perc = Math.round((fatti / lista.length) * 100);
+  document.getElementById("percentuale").innerText = "Completato: " + perc + "%";
+}
+
+cambiaGiorno();
+
+</script>
+
+</body>
+</html>
