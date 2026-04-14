@@ -50,6 +50,17 @@ label {
   <option value="scarica">Giorno Scarica 😴</option>
 </select>
 
+<button onclick="resetGiorno()" style="
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #ff3b3b;
+  color: white;
+  font-weight: bold;
+">
+  Reset Giorno 🔄
+</button>
 <div id="lista"></div>
 
 <div id="percentuale">Completato: 0%</div>
@@ -139,6 +150,23 @@ function aggiornaPercentuale() {
 
 cambiaGiorno();
 
+  function resetGiorno() {
+  let conferma = confirm("Sicuro di voler resettare il giorno?");
+
+  if (conferma) {
+    let giorno = document.getElementById("giorno").value;
+
+    Object.keys(stato).forEach(key => {
+      if (key.startsWith(giorno)) {
+        delete stato[key];
+      }
+    });
+
+    localStorage.setItem("stato", JSON.stringify(stato));
+
+    cambiaGiorno();
+  }
+}
 </script>
 
 </body>
