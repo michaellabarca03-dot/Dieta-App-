@@ -167,6 +167,14 @@ cambiaGiorno();
     cambiaGiorno();
   }
 }
+  let oggi = new Date().toDateString();
+
+let ultimo = localStorage.getItem("data");
+
+if (ultimo !== oggi) {
+  localStorage.removeItem("stato");
+  localStorage.setItem("data", oggi);
+}
 </script>
 
 </body>
