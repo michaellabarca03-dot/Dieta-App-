@@ -53,15 +53,19 @@
 
   <div id="result">Totale: 0 kcal</div>
 
-  <script>
-    let totale = 0;
+<script>
+  let totale = localStorage.getItem("totale") || 0;
+  document.getElementById("result").innerText = "Totale: " + totale + " kcal";
 
-    function aggiungi() {
-      let valore = document.getElementById("calorie").value;
-      totale += Number(valore);
-      document.getElementById("result").innerText = "Totale: " + totale + " kcal";
-    }
-  </script>
+  function aggiungi() {
+    let valore = document.getElementById("calorie").value;
+    totale = Number(totale) + Number(valore);
+
+    localStorage.setItem("totale", totale);
+
+    document.getElementById("result").innerText = "Totale: " + totale + " kcal";
+  }
+</script>
 
 </body>
 </html>
