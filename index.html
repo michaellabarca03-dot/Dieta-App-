@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Dieta</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #111;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 70px;
+}
+
+h1 { color: #ff3b3b; }
+
+select, button {
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px;
+  border: none;
+}
+
+.box {
+  background: #1c1c1c;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 15px;
+  text-align: left;
+}
+
+#percentuale {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #000;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #333;
+}
+
+.navbar div {
+  color: white;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Dieta 🔥</h1>
+
+<!-- DIETA -->
+<div id="dietaSection">
+
+<select id="giorno" onchange="cambiaGiorno()">
+  <option value="carica">Giorno Carica 💪</option>
+  <option value="scarica">Giorno Scarica 😴</option>
+</select>
+
+<button onclick="resetGiorno()" style="background:#ff3b3b; color:white;">
+  Reset 🔄
+</button>
+
+<div id="lista"></div>
+<div id="percentuale">Completato: 0%</div>
+
+</div>
+
+<!-- TIMER -->
+<div id="timerSection" style="display:none;">
+  <h2>Timer ⏱️</h2>
+  <h1 id="tempo">60</h1>
+
+  <button onclick="startTimer()">Start</button>
+  <button onclick="stopTimer()">Stop</button>
+</div>
+
+<!-- SCHEDA -->
+<div id="schedaSection" style="display:none;">
+  <h2>Scheda 💪</h2>
+  <p>Prossimo step 😏</p>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div onclick="mostraSezione('dieta')">🍽️<br>Dieta</div>
+  <div onclick="mostraSezione('timer')">⏱️<br>Timer</div>
+  <div onclick="mostraSezione('scheda')">💪<br>Scheda</div>
+</div>
+
+<script>
+
+const dieta = {
+  carica: ["Albume 200g","Avena 100g","Banana","Yogurt 150g","Mandorle 20g","Riso 150g","Pollo 160g","Uovo","Verdure","Patate","Manzo","Cereali"],
+  scarica: ["Albume 200g","Avena 80g","Banana","Yogurt","Mandorle","Riso","Pollo","Uovo","Gallette","Bresaola","Patate","Cereali"]
+};
+
+let stato = JSON.parse(localStorage.getItem("stato")) || {};
+
+function cambiaGiorno() {
+  let giorno = document.getElementById("giorno").value;
+  mostraLista(giorno);
+}
+
+function mostraLista(giorno) {
+  let lista = dieta[giorno];
+  let html = "";
+
+  lista.forEach((item, i) => {
+    let key = giorno + "_" + i;
+    let checked = stato[key] ? "checked" : "";
+
+    html += `
+      <div class="box">
+        <label>
+          <input type="checkbox" onchange="toggle('${key}')" ${checked}>
+          ${item}
+        </label>
+      </div>
+    `;
+  });
+
+  document.getElementById("lista").innerHTML = html;
+  aggiornaPercentuale();
+}
+
+function toggle(key) {
+  stato[key] = !stato[key];
+  localStorage.setItem("stato", JSON.stringify(stato));
+  aggiornaPercentuale();
+}
+
+function aggiornaPercentuale() {
+  let giorno = document.getElementById("giorno").value;
+  let lista = dieta[giorno];
+
+  let fatti = 0;
+
+  lista.forEach((_, i) => {
+    if (stato[giorno + "_" + i]) fatti++;
+  });
+
+  let perc = Math.round((fatti / lista.length) * 100);
+  document.getElementById("percentuale").innerText = "Completato: " + perc + "%";
+}
+
+function resetGiorno() {
+  let giorno = document.getElementById("giorno").value;
+
+  Object.keys(stato).forEach(key => {
+    if (key.startsWith(giorno)) {
+      delete stato[key];
+    }
+  });
+
+  localStorage.setItem("stato", JSON.stringify(stato));
+  cambiaGiorno();
+}
+
+/* NAVIGAZIONE */
+function mostraSezione(sezione) {
+  document.getElementById("dietaSection").style.display = "none";
+  document.getElementById("timerSection").style.display = "none";
+  document.getElementById("schedaSection").style.display = "none";
+
+  document.getElementById(sezione + "Section").style.display = "block";
+}
+
+/* TIMER */
+let intervallo;
+
+function startTimer() {
+  let tempo = parseInt(document.getElementById("tempo").innerText);
+
+  clearInterval(intervallo);
+
+  intervallo = setInterval(() => {
+    tempo--;
+    document.getElementById("tempo").innerText = tempo;
+
+    if (tempo <= 0) {
+      clearInterval(intervallo);
+      alert("Tempo finito!");
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(intervallo);
+}
+
+cambiaGiorno();
+
+</script>
+
+</body>
+</html>
