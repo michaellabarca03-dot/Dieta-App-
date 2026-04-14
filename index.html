@@ -100,7 +100,13 @@ const dieta = {
 };
 
 let stato = JSON.parse(localStorage.getItem("stato")) || {};
+let oggi = new Date().toDateString();
+let ultimo = localStorage.getItem("data");
 
+if (ultimo !== oggi) {
+  localStorage.removeItem("stato");
+  localStorage.setItem("data", oggi);
+}
 function cambiaGiorno() {
   let giorno = document.getElementById("giorno").value;
   mostraLista(giorno);
@@ -147,7 +153,13 @@ function aggiornaPercentuale() {
   let perc = Math.round((fatti / lista.length) * 100);
   document.getElementById("percentuale").innerText = "Completato: " + perc + "%";
 }
+let oggi = new Date().toDateString();
+let ultimo = localStorage.getItem("data");
 
+if (ultimo !== oggi) {
+  localStorage.removeItem("stato");
+  localStorage.setItem("data", oggi);
+}
 cambiaGiorno();
 
   function resetGiorno() {
