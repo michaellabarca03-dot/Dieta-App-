@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Fitness App</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {font-family:Arial;background:#111;color:white;text-align:center;padding:20px;margin-bottom:80px;}
+h1 {color:#ff3b3b;}
+
+.box {background:#1c1c1c;padding:12px;margin:8px 0;border-radius:15px;}
+.row {display:flex;justify-content:space-between;align-items:center;}
+
+button,input,select {padding:10px;border-radius:10px;border:none;margin:5px;}
+
+.navbar {position:fixed;bottom:0;width:100%;background:#000;display:flex;justify-content:space-around;}
+.navbar div {padding:10px;color:white;}
+.navbar .active {color:#ff3b3b;}
+
+#popup {
+display:none;
+position:fixed;
+bottom:0;
+width:100%;
+background:#222;
+padding:20px;
+border-radius:20px 20px 0 0;
+}
+
+.picker select {font-size:20px;height:120px;}
+</style>
+</head>
+
+<body>
+
+<h1>Fitness 🔥</h1>
+
+<!-- DIETA -->
+<div id="dietaSection">
+<h2>Dieta</h2>
+<p>Qui puoi gestire i tuoi pasti</p>
+</div>
+
+<!-- TIMER -->
+<div id="timerSection" style="display:none;">
+<h2>Timer ⏱️</h2>
+<h1 id="tempo">60</h1>
+
+<button onclick="setTempo(60)">60</button>
+<button onclick="setTempo(90)">90</button>
+
+<button onclick="startTimer()">Start</button>
+<button onclick="resetTimer()">Reset</button>
+
+<select onchange="cambiaMusica(this.value)">
+<option value="gym">Gym</option>
+<option value="chill">Chill</option>
+</select>
+
+<iframe id="playerSpotify" width="100%" height="150"></iframe>
+</div>
+
+<!-- UTENTE -->
+<div id="utenteSection" style="display:none;">
+<h2>Utente 👤</h2>
+
+<input id="peso" placeholder="Peso">
+<button onclick="salvaPeso()">Salva</button>
+
+<canvas id="graficoPeso"></canvas>
+
+<h3>Foto</h3>
+<input type="file" onchange="caricaFoto(event,'prima')">
+<input type="file" onchange="caricaFoto(event,'dopo')">
+
+<img id="fotoPrima">
+<img id="fotoDopo">
+</div>
+
+<!-- SCHEDA -->
+<div id="schedaSection" style="display:none;">
+<h2>Scheda 💪</h2>
+
+<div class="box">
+<div class="row">Chest Press ⏱️90s <button onclick="apriPopup('A1')">➕</button></div>
+<div id="val_A1"></div>
+</div>
+
+<div class="box">
+<div class="row">Leg Extension ⏱️75s <button onclick="apriPopup('B1')">➕</button></div>
+<div id="val_B1"></div>
+</div>
+
+</div>
+
+<!-- POPUP -->
+<div id="popup">
+<h3>Aggiungi serie</h3>
+
+<div class="picker">
+<select id="pesoPicker"></select>
+<select id="repsPicker"></select>
+</div>
+
+<button onclick="aggiungiSerie()">Aggiungi</button>
+<button onclick="chiudiPopup()">Chiudi</button>
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="mostraSezione('dieta',this)" class="active">🍽️</div>
+<div onclick="mostraSezione('timer',this)">⏱️</div>
+<div onclick="mostraSezione('utente',this)">👤</div>
+<div onclick="mostraSezione('scheda',this)">💪</div>
+</div>
+
+<script>
+
+// NAV
+function mostraSezione(s,el){
+["dieta","timer","utente","scheda"].forEach(x=>document.getElementById(x+"Section").style.display="none");
+document.getElementById(s+"Section").style.display="block";
+document.querySelectorAll(".navbar div").forEach(d=>d.classList.remove("active"));
+el.classList.add("active");
+}
+
+// TIMER
+let t=60,int;
+function setTempo(v){t=v;tempo.innerText=v;}
+function startTimer(){
+clearInterval(int);
+int=setInterval(()=>{t--;tempo.innerText=t;if(t<=0)clearInterval(int);},1000);
+}
+function resetTimer(){t=60;tempo.innerText=t;}
+
+// SPOTIFY
+const playlist={
+gym:"https://open.spotify.com/embed/playlist/37i9dQZF1DX70RN3TfWWJh",
+chill:"https://open.spotify.com/embed/playlist/37i9dQZF1DX4WYpdgoIcn6"
+};
+function cambiaMusica(t){playerSpotify.src=playlist[t];}
+
+// POPUP
+for(let i=0;i<=200;i++) pesoPicker.innerHTML+=`<option>${i}kg</option>`;
+for(let i=1;i<=30;i++) repsPicker.innerHTML+=`<option>${i}</option>`;
+
+let current=null;
+
+function apriPopup(n){current=n;popup.style.display="block";}
+function chiudiPopup(){popup.style.display="none";}
+
+function aggiungiSerie(){
+let val=pesoPicker.value+" x "+repsPicker.value;
+let dati=JSON.parse(localStorage.getItem("scheda"))||{};
+if(!dati[current]) dati[current]=[];
+dati[current].push(val);
+localStorage.setItem("scheda",JSON.stringify(dati));
+render(current);
+}
+
+function render(n){
+let d=JSON.parse(localStorage.getItem("scheda"))||{};
+document.getElementById("val_"+n).innerHTML=(d[n]||[]).map(x=>`<div>${x}</div>`).join("");
+}
+
+// PESO
+let storico=[];
+function salvaPeso(){
+storico.push(Number(peso.value));
+new Chart(graficoPeso,{type:"line",data:{labels:storico,datasets:[{data:storico}]}})
+}
+
+// FOTO
+function caricaFoto(e,t){
+let r=new FileReader();
+r.onload=x=>{
+if(t=="prima") fotoPrima.src=x.target.result;
+else fotoDopo.src=x.target.result;
+};
+r.readAsDataURL(e.target.files[0]);
+}
+
+</script>
+
+</body>
+</html>
