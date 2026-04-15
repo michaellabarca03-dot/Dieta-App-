@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>GYM</title>
+<title>Dieta PRO</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -57,8 +57,7 @@ img {max-width:45%;border-radius:10px;margin:5px;}
 <button onclick="stopTimer()">Stop</button>
 <button onclick="resetTimer()">Reset</button>
 
-<br><br>
-
+</div>
 
 <!-- UTENTE -->
 <div id="utenteSection" style="display:none;">
@@ -86,48 +85,12 @@ img {max-width:45%;border-radius:10px;margin:5px;}
 <h2>Scheda Palestra 💪</h2>
 
 <h3>Workout A</h3>
-<div class="box">Chest Press (4x12/10/8/8) ⏱️90s <input onchange="salvaEsercizio('A1')"></div>
-<div class="box">Lat Machine presa neutra (4x10-12) ⏱️90s <input onchange="salvaEsercizio('A2')"></div>
-<div class="box">Shoulder Press (3x10-12) ⏱️75s <input onchange="salvaEsercizio('A3')"></div>
-<div class="box">Row Machine (3x10-12) ⏱️75s <input onchange="salvaEsercizio('A4')"></div>
-<div class="box">Alzate laterali (3x12-15) ⏱️60s <input onchange="salvaEsercizio('A5')"></div>
-<div class="box">Croci cavi (3x12-15) ⏱️60s <input onchange="salvaEsercizio('A6')"></div>
-<div class="box">Curl manubri (3x10-12) ⏱️60s <input onchange="salvaEsercizio('A7')"></div>
-<div class="box">Pushdown corda (3x12-15) ⏱️60s <input onchange="salvaEsercizio('A8')"></div>
-<div class="box">Tapis roulant 20min ⏱️30s <input onchange="salvaEsercizio('A9')"></div>
+<div class="box">Chest Press ⏱️90s <input onchange="salvaEsercizio('A1')"></div>
+<div class="box">Lat Machine ⏱️90s <input onchange="salvaEsercizio('A2')"></div>
 
 <h3>Workout B</h3>
-<div class="box">Leg Extension (4x12-15) ⏱️75s <input onchange="salvaEsercizio('B1')"></div>
-<div class="box">Leg Curl (4x12-15) ⏱️75s <input onchange="salvaEsercizio('B2')"></div>
-<div class="box">Hip Thrust (3x10-12) ⏱️75s <input onchange="salvaEsercizio('B3')"></div>
-<div class="box">Abductor (3x15-20) ⏱️60s <input onchange="salvaEsercizio('B4')"></div>
-<div class="box">Calf Raise (4x12-15) ⏱️60s <input onchange="salvaEsercizio('B5')"></div>
-<div class="box">Pullover cavo (3x12-15) ⏱️60s <input onchange="salvaEsercizio('B6')"></div>
-<div class="box">Pectoral machine (4x12-15) ⏱️60s <input onchange="salvaEsercizio('B7')"></div>
-<div class="box">Curl cavo basso (3x12-15) ⏱️60s <input onchange="salvaEsercizio('B8')"></div>
-<div class="box">Tapis roulant 20min ⏱️30s <input onchange="salvaEsercizio('B9')"></div>
+<div class="box">Leg Extension ⏱️75s <input onchange="salvaEsercizio('B1')"></div>
 
-<h3>Workout C</h3>
-<div class="box">Incline Chest Press (4x8-12) ⏱️90s <input onchange="salvaEsercizio('C1')"></div>
-<div class="box">Row unilaterale (4x10-12) ⏱️75s <input onchange="salvaEsercizio('C2')"></div>
-<div class="box">Lat triangolo (3x10-12) ⏱️75s <input onchange="salvaEsercizio('C3')"></div>
-<div class="box">Alzate cavi (3x12-15) ⏱️60s <input onchange="salvaEsercizio('C4')"></div>
-<div class="box">Rear delt (3x12-15) ⏱️60s <input onchange="salvaEsercizio('C5')"></div>
-<div class="box">Curl hammer (3x10-12) ⏱️60s <input onchange="salvaEsercizio('C6')"></div>
-<div class="box">Tricipiti sopra testa (3x12-15) ⏱️60s <input onchange="salvaEsercizio('C7')"></div>
-<div class="box">Row presa larga (3x10-12) ⏱️75s <input onchange="salvaEsercizio('C8')"></div>
-<div class="box">Tapis roulant 20min ⏱️30s <input onchange="salvaEsercizio('C9')"></div>
-
-<h3>Workout D</h3>
-<div class="box">Leg Press (3x12-15) ⏱️90s <input onchange="salvaEsercizio('D1')"></div>
-<div class="box">Leg Curl seduto (4x12-15) ⏱️75s <input onchange="salvaEsercizio('D2')"></div>
-<div class="box">Bulgarian (3x10) ⏱️75s <input onchange="salvaEsercizio('D3')"></div>
-<div class="box">Leg Extension (3x12) ⏱️60s <input onchange="salvaEsercizio('D4')"></div>
-<div class="box">Calf piedi (4x12-15) ⏱️60s <input onchange="salvaEsercizio('D5')"></div>
-<div class="box">Chest Press (3x10-12) ⏱️75s <input onchange="salvaEsercizio('D6')"></div>
-<div class="box">Lat pulldown (3x12-15) ⏱️60s <input onchange="salvaEsercizio('D7')"></div>
-<div class="box">Curl machine (3x12-15) ⏱️60s <input onchange="salvaEsercizio('D8')"></div>
-<div class="box">Pushdown barra (3x12-15) ⏱️60s <input onchange="salvaEsercizio('D9')"></div>
 </div>
 
 <!-- NAV -->
@@ -140,17 +103,58 @@ img {max-width:45%;border-radius:10px;margin:5px;}
 
 <script>
 
-function salvaEsercizio(nome){
-let dati=JSON.parse(localStorage.getItem("scheda"))||{};
-dati[nome]=event.target.value;
-localStorage.setItem("scheda",JSON.stringify(dati));
-}
-
+// NAV
 function mostraSezione(s,el){
 ["dieta","timer","utente","scheda"].forEach(x=>document.getElementById(x+"Section").style.display="none");
 document.getElementById(s+"Section").style.display="block";
 document.querySelectorAll(".navbar div").forEach(d=>d.classList.remove("active"));
 el.classList.add("active");
+}
+
+// TIMER
+let t=60,base=60,int;
+function setTempo(v){t=v;base=v;tempo.innerText=v;}
+function startTimer(){
+clearInterval(int);
+int=setInterval(()=>{t--;tempo.innerText=t;if(t<=0){clearInterval(int);alert("Fine");}},1000);
+}
+function stopTimer(){clearInterval(int);}
+function resetTimer(){t=base;tempo.innerText=t;}
+
+// UTENTE
+function salvaUtente(){
+localStorage.setItem("utente",JSON.stringify({altezza:altezza.value,peso:peso.value}));
+mostraUtente();
+}
+function mostraUtente(){
+let d=JSON.parse(localStorage.getItem("utente"));
+if(!d)return;
+datiUtente.innerText=`Altezza ${d.altezza} | Peso ${d.peso}`;
+}
+
+// GRAFICO
+let storicoPeso=JSON.parse(localStorage.getItem("pesoStorico"))||[];
+function salvaPeso(){
+storicoPeso.push(Number(peso.value));
+localStorage.setItem("pesoStorico",JSON.stringify(storicoPeso));
+new Chart(graficoPeso,{type:"line",data:{labels:storicoPeso.map((_,i)=>i+1),datasets:[{data:storicoPeso}]}})
+}
+
+// FOTO
+function caricaFoto(e,tipo){
+let r=new FileReader();
+r.onload=x=>{
+if(tipo=="prima") fotoPrima.src=x.target.result;
+else fotoDopo.src=x.target.result;
+};
+r.readAsDataURL(e.target.files[0]);
+}
+
+// SCHEDA
+function salvaEsercizio(nome){
+let dati=JSON.parse(localStorage.getItem("scheda"))||{};
+dati[nome]=event.target.value;
+localStorage.setItem("scheda",JSON.stringify(dati));
 }
 
 </script>
