@@ -19,7 +19,71 @@ input,select,button {padding:10px;margin:5px;border-radius:10px;border:none;}
 img {max-width:45%;border-radius:10px;margin:5px;}
 </style>
 </head>
+<script>  
+  // -------- DIETA --------
+let totaleKcal = 0;
 
+function aggiungiAlimento(){
+let nome = document.getElementById("nomeAlimento").value;
+let kcal = parseInt(document.getElementById("kcalAlimento").value);
+
+if(!nome || !kcal) return;
+
+totaleKcal += kcal;
+
+let div = document.createElement("div");
+div.className = "box";
+div.innerHTML = nome + " - " + kcal + " kcal";
+
+document.getElementById("lista").appendChild(div);
+
+aggiornaBarra();
+}
+
+function aggiornaBarra(){
+let max = 2000; // puoi cambiare
+let percent = (totaleKcal / max) * 100;
+
+document.getElementById("percentuale").innerText = Math.floor(percent) + "%";
+document.getElementById("barra").style.width = percent + "%";
+}
+
+function resetGiorno(){
+totaleKcal = 0;
+document.getElementById("lista").innerHTML = "";
+document.getElementById("barra").style.width = "0%";
+document.getElementById("percentuale").innerText = "0%";
+}
+
+// -------- TIMER --------
+let timer;
+let tempo = 60;
+
+function setTempo(t){
+tempo = t;
+document.getElementById("tempo").innerText = tempo;
+}
+
+function startTimer(){
+clearInterval(timer);
+timer = setInterval(()=>{
+if(tempo > 0){
+tempo--;
+document.getElementById("tempo").innerText = tempo;
+}
+},1000);
+}
+
+function stopTimer(){
+clearInterval(timer);
+}
+
+function resetTimer(){
+clearInterval(timer);
+tempo = 60;
+document.getElementById("tempo").innerText = tempo;
+}
+</script>
 <body>
 
 <h1>GYM</h1>
