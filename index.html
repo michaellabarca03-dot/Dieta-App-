@@ -20,8 +20,8 @@ img {max-width:45%;border-radius:10px;margin:5px;}
 </style>
 </head>
 <script>  
-  // -------- DIETA --------
-let totaleKcal = 0;
+// -------- DIETA --------
+let alimenti = [];
 
 function aggiungiAlimento(){
 let nome = document.getElementById("nomeAlimento").value;
@@ -29,31 +29,67 @@ let kcal = parseInt(document.getElementById("kcalAlimento").value);
 
 if(!nome || !kcal) return;
 
-totaleKcal += kcal;
+let alimento = {
+nome,
+kcal,
+attivo: true
+};
+
+alimenti.push(alimento);
+renderLista();
+}
+
+function renderLista(){
+let lista = document.getElementById("lista");
+lista.innerHTML = "";
+
+let totale = 0;
+
+alimenti.forEach((a, index)=>{
+if(a.attivo) totale += a.kcal;
 
 let div = document.createElement("div");
 div.className = "box";
-div.innerHTML = nome + " - " + kcal + " kcal";
 
-document.getElementById("lista").appendChild(div);
+div.innerHTML = `
+<span style="cursor:pointer;" onclick="toggleAlimento(${index})">
+${a.attivo ? "✅" : "⬜"} ${a.nome} - ${a.kcal} kcal
+</span>
+<button onclick="eliminaAlimento(${index})">❌</button>
+`;
 
-aggiornaBarra();
+lista.appendChild(div);
+});
+
+aggiornaBarra(totale);
 }
 
-function aggiornaBarra(){
-let max = 2000; // puoi cambiare
-let percent = (totaleKcal / max) * 100;
+function toggleAlimento(i){
+alimenti[i].attivo = !alimenti[i].attivo;
+renderLista();
+}
+
+function eliminaAlimento(i){
+alimenti.splice(i,1);
+renderLista();
+}
+
+function aggiornaBarra(totale){
+let max = 2000;
+let percent = (totale / max) * 100;
 
 document.getElementById("percentuale").innerText = Math.floor(percent) + "%";
 document.getElementById("barra").style.width = percent + "%";
 }
 
 function resetGiorno(){
-totaleKcal = 0;
+alimenti = [];
 document.getElementById("lista").innerHTML = "";
 document.getElementById("barra").style.width = "0%";
 document.getElementById("percentuale").innerText = "0%";
 }
+
+</script>
 
 // -------- TIMER --------
 let timer;
