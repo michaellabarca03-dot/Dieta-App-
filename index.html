@@ -267,6 +267,28 @@ el.classList.add("active");
 }
 
 </script>
+  
+<script>
 
+function salvaEsercizio(nome){
+let dati=JSON.parse(localStorage.getItem("scheda"))||{};
+dati[nome]=event.target.value;
+localStorage.setItem("scheda",JSON.stringify(dati));
+}
+
+function mostraSezione(s,el){
+["dieta","timer","utente","scheda"].forEach(x=>document.getElementById(x+"Section").style.display="none");
+document.getElementById(s+"Section").style.display="block";
+document.querySelectorAll(".navbar div").forEach(d=>d.classList.remove("active"));
+el.classList.add("active");
+}
+
+// 👇 AGGIUNGI QUESTO QUI SOTTO
+document.addEventListener("DOMContentLoaded", function(){
+renderLista();
+caricaScheda();
+});
+
+</script>
 </body>
 </html>
