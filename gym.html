@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>GYM</title>
+
+<style>
+body {font-family:Arial;text-align:center;padding:20px;margin-bottom:80px;background:#111;color:white;}
+h1 {color:#ff3b3b;}
+input,select,button {padding:8px;margin:5px;border-radius:10px;border:none;}
+.box {background:#1c1c1c;padding:10px;margin:8px 0;border-radius:15px;display:flex;justify-content:space-between;align-items:center;gap:5px;}
+.navbar {position:fixed;bottom:0;width:100%;background:#000;display:flex;justify-content:space-around;}
+.navbar div {color:white;padding:10px;}
+.navbar .active {color:#ff3b3b;}
+</style>
+</head>
+
+<body>
+
+<h1>GYM 🔥</h1>
+
+<!-- DIETA -->
+<div id="dietaSection">
+<input id="nomeAlimento" placeholder="Alimento">
+<input id="kcalAlimento" type="number" placeholder="Kcal">
+<button onclick="aggiungiAlimento()">Aggiungi</button>
+
+<select id="giorno" onchange="cambiaGiorno()">
+<option value="carica">Carica</option>
+<option value="scarica">Scarica</option>
+</select>
+
+<button onclick="resetGiorno()">Reset</button>
+
+<div id="lista"></div>
+<div id="percentuale"></div>
+</div>
+
+<!-- SCHEDA -->
+<div id="schedaSection" style="display:none;">
+<h2>Scheda Palestra 💪</h2>
+
+<!-- AGGIUNTA -->
+<select id="workoutSelect">
+<option value="A">Workout A</option>
+<option value="B">Workout B</option>
+<option value="C">Workout C</option>
+<option value="D">Workout D</option>
+</select>
+
+<input id="nomeEsercizio" placeholder="Esercizio">
+<input id="serieReps" placeholder="Serie x Reps (es: 3x10)">
+<button onclick="aggiungiEsercizio()">➕ Aggiungi</button>
+
+<h3>A</h3>
+<div id="workoutA"></div>
+
+<h3>B</h3>
+<div id="workoutB"></div>
+
+<h3>C</h3>
+<div id="workoutC"></div>
+
+<h3>D</h3>
+<div id="workoutD"></div>
+
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="mostraSezione('dieta',this)" class="active">🍽️</div>
+<div onclick="mostraSezione('scheda',this)">💪</div>
+</div>
+
+<script>
+
+// -------- DIETA --------
+let giornoCorrente="carica";
+let alimenti=JSON.parse(localStorage.getItem("dieta"))||{carica:[],scarica:[]};
+
+function salvaDieta(){localStorage.setItem("dieta",JSON.stringify(alimenti));}
+
+function cambiaGiorno(){
+giornoCorrente=document.getElementById("giorno").value;
+renderLista();
+}
+
+function aggiungiAlimento(){
+let nome=nomeAlimento.value;
+let kcal=parseInt(kcalAlimento.value);
+if(!nome||!kcal)return;
+alimenti[giornoCorrente].push({nome,kcal});
+salvaDieta();
+renderLista();
+}
+
+function renderLista(){
+lista.innerHTML="";
+let tot=0;
+alimenti[giornoCorrente].forEach((a,i)=>{
+tot+=a.kcal;
+lista.innerHTML+=`<div class="box">${a.nome} ${a.kcal}
+<button onclick="eliminaAlimento(${i})">❌</button></div>`;
+});
+percentuale.innerText=tot+" kcal";
+}
+
+function eliminaAlimento(i){
+alimenti[giornoCorrente].splice(i,1);
+salvaDieta();
+renderLista();
+}
+
+function resetGiorno(){
+alimenti[giornoCorrente]=[];
+salvaDieta();
+renderLista();
+}
+
+// -------- SCHEDA DINAMICA --------
+let scheda=JSON.parse(localStorage.getItem("schedaAllenamento"))||{
+A:[],B:[],C:[],D:[]
+};
+
+function salvaScheda(){
+localStorage.setItem("schedaAllenamento",JSON.stringify(scheda));
+}
+
+function aggiungiEsercizio(){
+let w=document.getElementById("workoutSelect").value;
+let nome=document.getElementById("nomeEsercizio").value;
+let reps=document.getElementById("serieReps").value;
+
+if(!nome)return;
+
+scheda[w].push({nome,reps,kg:""});
+salvaScheda();
+renderScheda();
+}
+
+function eliminaEsercizio(w,i){
+scheda[w].splice(i,1);
+salvaScheda();
+renderScheda();
+}
+
+function aggiornaKg(w,i,val){
+scheda[w][i].kg=val;
+salvaScheda();
+}
+
+function renderScheda(){
+["A","B","C","D"].forEach(w=>{
+let container=document.getElementById("workout"+w);
+container.innerHTML="";
+
+scheda[w].forEach((e,i)=>{
+container.innerHTML+=`
+<div class="box">
+<span>${e.nome} (${e.reps})</span>
+<input placeholder="kg" value="${e.kg||""}" oninput="aggiornaKg('${w}',${i},this.value)">
+<button onclick="eliminaEsercizio('${w}',${i})">❌</button>
+</div>
+`;
+});
+});
+}
+
+// -------- NAV --------
+function mostraSezione(s,el){
+["dieta","scheda"].forEach(x=>document.getElementById(x+"Section").style.display="none");
+document.getElementById(s+"Section").style.display="block";
+document.querySelectorAll(".navbar div").forEach(d=>d.classList.remove("active"));
+el.classList.add("active");
+}
+
+// -------- AVVIO --------
+document.addEventListener("DOMContentLoaded",()=>{
+renderLista();
+renderScheda();
+});
+
+</script>
+
+</body>
+</html>
