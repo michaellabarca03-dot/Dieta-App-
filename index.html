@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>GYM</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {font-family:Arial;text-align:center;padding:20px;margin-bottom:80px;background:#111;color:white;}
+h1 {color:#ff3b3b;}
+input,select,button {padding:10px;margin:5px;border-radius:10px;border:none;}
+.box {background:#1c1c1c;padding:10px;margin:8px 0;border-radius:15px;display:flex;justify-content:space-between;align-items:center;}
+.barra-container {background:#333;height:20px;border-radius:20px;}
+#barra {height:100%;width:0%;background:#00ff88;border-radius:20px;}
+.navbar {position:fixed;bottom:0;width:100%;background:#000;display:flex;justify-content:space-around;}
+.navbar div {color:white;padding:10px;}
+.navbar .active {color:#ff3b3b;}
+img {max-width:45%;border-radius:10px;margin:5px;}
+</style>
+</head>
+
+<body>
+
+<h1>GYM 🔥</h1>
+
+<!-- DIETA -->
+<div id="dietaSection">
+<input id="nomeAlimento" placeholder="Alimento">
+<input id="kcalAlimento" type="number" placeholder="Kcal">
+<button onclick="aggiungiAlimento()">Aggiungi</button>
+
+<select id="giorno" onchange="cambiaGiorno()">
+<option value="carica">Carica</option>
+<option value="scarica">Scarica</option>
+</select>
+
+<button onclick="resetGiorno()">Reset</button>
+
+<div id="lista"></div>
+<div id="percentuale"></div>
+<div class="barra-container"><div id="barra"></div></div>
+</div>
+
+<!-- TIMER -->
+<div id="timerSection" style="display:none;">
+<h2>Timer ⏱️</h2>
+<h1 id="tempo">60</h1>
+
+<button onclick="setTempo(60)">60</button>
+<button onclick="setTempo(75)">75</button>
+<button onclick="setTempo(90)">90</button>
+
+<br><br>
+
+<button onclick="startTimer()">Start</button>
+<button onclick="stopTimer()">Stop</button>
+<button onclick="resetTimer()">Reset</button>
+</div>
+
+<!-- UTENTE -->
+<div id="utenteSection" style="display:none;">
+<h2>Utente 👤</h2>
+
+<input id="altezza" placeholder="Altezza">
+<input id="peso" placeholder="Peso">
+<button onclick="salvaUtente()">Salva</button>
+
+<p id="datiUtente"></p>
+
+<h3>Prima / Dopo 📸</h3>
+<input type="file" onchange="caricaFoto(event,'prima')">
+<input type="file" onchange="caricaFoto(event,'dopo')">
+<img id="fotoPrima">
+<img id="fotoDopo">
+</div>
+
+<!-- SCHEDA -->
+<div id="schedaSection" style="display:none;">
+<h2>Scheda Palestra 💪</h2>
+
+<h3>Workout A</h3>
+<div class="box">Chest Press (4x12/10/8/8) ⏱️90s <input data-key="A1" onchange="salvaEsercizio(this)"></div>
+<div class="box">Lat Machine (4x10-12) ⏱️90s <input data-key="A2" onchange="salvaEsercizio(this)"></div>
+<div class="box">Shoulder Press (3x10-12) ⏱️75s <input data-key="A3" onchange="salvaEsercizio(this)"></div>
+<div class="box">Row Machine (3x10-12) ⏱️75s <input data-key="A4" onchange="salvaEsercizio(this)"></div>
+<div class="box">Alzate laterali (3x12-15) ⏱️60s <input data-key="A5" onchange="salvaEsercizio(this)"></div>
+<div class="box">Croci cavi (3x12-15) ⏱️60s <input data-key="A6" onchange="salvaEsercizio(this)"></div>
+<div class="box">Curl manubri (3x10-12) ⏱️60s <input data-key="A7" onchange="salvaEsercizio(this)"></div>
+<div class="box">Pushdown corda (3x12-15) ⏱️60s <input data-key="A8" onchange="salvaEsercizio(this)"></div>
+
+<h3>Workout B</h3>
+<div class="box">Leg Extension (4x12-15) ⏱️75s <input data-key="B1" onchange="salvaEsercizio(this)"></div>
+<div class="box">Leg Curl (4x12-15) ⏱️75s <input data-key="B2" onchange="salvaEsercizio(this)"></div>
+<div class="box">Hip Thrust (3x10-12) ⏱️75s <input data-key="B3" onchange="salvaEsercizio(this)"></div>
+<div class="box">Abductor (3x15-20) ⏱️60s <input data-key="B4" onchange="salvaEsercizio(this)"></div>
+<div class="box">Calf Raise (4x12-15) ⏱️60s <input data-key="B5" onchange="salvaEsercizio(this)"></div>
+
+<h3>Workout C</h3>
+<div class="box">Incline Chest (4x8-12) ⏱️90s <input data-key="C1" onchange="salvaEsercizio(this)"></div>
+<div class="box">Row unilaterale (4x10-12) ⏱️75s <input data-key="C2" onchange="salvaEsercizio(this)"></div>
+<div class="box">Lat triangolo (3x10-12) ⏱️75s <input data-key="C3" onchange="salvaEsercizio(this)"></div>
+
+<h3>Workout D</h3>
+<div class="box">Leg Press (3x12-15) ⏱️90s <input data-key="D1" onchange="salvaEsercizio(this)"></div>
+<div class="box">Bulgarian (3x10) ⏱️75s <input data-key="D2" onchange="salvaEsercizio(this)"></div>
+<div class="box">Pushdown (3x12-15) ⏱️60s <input data-key="D3" onchange="salvaEsercizio(this)"></div>
+
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="mostraSezione('dieta',this)" class="active">🍽️</div>
+<div onclick="mostraSezione('timer',this)">⏱️</div>
+<div onclick="mostraSezione('utente',this)">👤</div>
+<div onclick="mostraSezione('scheda',this)">💪</div>
+</div>
+
+<script>
+
+// DIETA
+let giornoCorrente="carica";
+let alimenti=JSON.parse(localStorage.getItem("dieta"))||{carica:[],scarica:[]};
+
+function salvaDieta(){localStorage.setItem("dieta",JSON.stringify(alimenti));}
+function cambiaGiorno(){giornoCorrente=document.getElementById("giorno").value;renderLista();}
+function aggiungiAlimento(){
+let nome=nomeAlimento.value;
+let kcal=parseInt(kcalAlimento.value);
+if(!nome||!kcal)return;
+alimenti[giornoCorrente].push({nome,kcal,attivo:true});
+salvaDieta();renderLista();
+}
+
+function renderLista(){
+lista.innerHTML="";
+let tot=0;
+alimenti[giornoCorrente].forEach((a,i)=>{
+if(a.attivo)tot+=a.kcal;
+lista.innerHTML+=`<div class="box">${a.nome} - ${a.kcal}
+<button onclick="eliminaAlimento(${i})">❌</button></div>`;
+});
+percentuale.innerText=tot+" kcal";
+}
+
+function eliminaAlimento(i){alimenti[giornoCorrente].splice(i,1);salvaDieta();renderLista();}
+function resetGiorno(){alimenti[giornoCorrente]=[];salvaDieta();renderLista();}
+
+// SCHEDA
+function salvaEsercizio(el){
+let d=JSON.parse(localStorage.getItem("scheda"))||{};
+d[el.dataset.key]=el.value;
+localStorage.setItem("scheda",JSON.stringify(d));
+}
+function caricaScheda(){
+let d=JSON.parse(localStorage.getItem("scheda"))||{};
+document.querySelectorAll("[data-key]").forEach(i=>{if(d[i.dataset.key])i.value=d[i.dataset.key];});
+}
+
+// UTENTE
+function salvaUtente(){
+let d={altezza:altezza.value,peso:peso.value};
+localStorage.setItem("utente",JSON.stringify(d));
+datiUtente.innerText=`${d.altezza} cm - ${d.peso} kg`;
+}
+function caricaUtente(){
+let d=JSON.parse(localStorage.getItem("utente"))||{};
+if(d.altezza)altezza.value=d.altezza;
+if(d.peso)peso.value=d.peso;
+}
+
+// NAV
+function mostraSezione(s,el){
+["dieta","timer","utente","scheda"].forEach(x=>document.getElementById(x+"Section").style.display="none");
+document.getElementById(s+"Section").style.display="block";
+document.querySelectorAll(".navbar div").forEach(d=>d.classList.remove("active"));
+el.classList.add("active");
+}
+
+// AVVIO
+document.addEventListener("DOMContentLoaded",()=>{
+renderLista();
+caricaScheda();
+caricaUtente();
+});
+
+</script>
+
+</body>
+</html>
