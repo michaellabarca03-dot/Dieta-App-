@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Gym App</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+font-family:-apple-system, BlinkMacSystemFont;
+background:#0f0f0f;
+color:white;
+}
+
+/* HEADER */
+.header{
+padding:20px;
+font-size:28px;
+font-weight:600;
+}
+
+/* CARD IOS STYLE */
+.card{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:15px;
+margin:15px;
+}
+
+/* INPUT */
+input,select{
+width:100%;
+padding:12px;
+margin-top:8px;
+border-radius:12px;
+border:none;
+background:#1c1c1e;
+color:white;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:12px;
+border:none;
+background:#0a84ff;
+color:white;
+font-weight:600;
+}
+
+/* LIST ITEM */
+.item{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+/* NAVBAR IOS */
+.navbar{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+justify-content:space-around;
+background:rgba(20,20,20,0.9);
+backdrop-filter:blur(20px);
+padding:10px 0;
+}
+
+.navbar div{
+font-size:22px;
+opacity:0.5;
+}
+
+.navbar .active{
+opacity:1;
+}
+
+/* SECTIONS */
+.section{display:none;}
+.activeSection{display:block;}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">GYM</div>
+
+<!-- DIETA -->
+<div id="dieta" class="section activeSection">
+<div class="card">
+<input id="nomeAlimento" placeholder="Alimento">
+<input id="kcalAlimento" type="number" placeholder="Kcal">
+<button onclick="aggiungiAlimento()">Aggiungi</button>
+</div>
+
+<div class="card">
+<select id="giorno" onchange="cambiaGiorno()">
+<option value="carica">Carica</option>
+<option value="scarica">Scarica</option>
+</select>
+
+<div id="lista"></div>
+<h3 id="totale"></h3>
+</div>
+</div>
+
+<!-- TIMER -->
+<div id="timer" class="section">
+<div class="card">
+<h2 id="tempo">60</h2>
+<button onclick="startTimer()">Start</button>
+<button onclick="resetTimer()">Reset</button>
+</div>
+</div>
+
+<!-- UTENTE -->
+<div id="utente" class="section">
+<div class="card">
+<input id="altezza" placeholder="Altezza">
+<input id="peso" placeholder="Peso">
+<button onclick="salvaUtente()">Salva</button>
+<p id="datiUtente"></p>
+</div>
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="switchTab('dieta',this)" class="active">🍽️</div>
+<div onclick="switchTab('timer',this)">⏱️</div>
+<div onclick="switchTab('utente',this)">👤</div>
+</div>
+
+<script>
+
+// NAV
+function switchTab(id,el){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('activeSection'));
+document.getElementById(id).classList.add('activeSection');
+
+document.querySelectorAll('.navbar div').forEach(d=>d.classList.remove('active'));
+el.classList.add('active');
+}
+
+// DIETA
+let alimenti={carica:[],scarica:[]};
+let giorno="carica";
+
+function aggiungiAlimento(){
+let nome=nomeAlimento.value;
+let kcal=parseInt(kcalAlimento.value);
+
+if(!nome||!kcal)return;
+
+alimenti[giorno].push({nome,kcal});
+render();
+}
+
+function cambiaGiorno(){
+giorno=giornoSelect.value;
+render();
+}
+
+function render(){
+lista.innerHTML="";
+let tot=0;
+
+alimenti[giorno].forEach(a=>{
+tot+=a.kcal;
+lista.innerHTML+=`<div class="item">${a.nome} ${a.kcal}</div>`;
+});
+
+totale.innerText=tot+" kcal";
+}
+
+// TIMER
+let t=60;
+let interval;
+
+function startTimer(){
+clearInterval(interval);
+interval=setInterval(()=>{
+t--;
+tempo.innerText=t;
+if(t<=0)clearInterval(interval);
+},1000);
+}
+
+function resetTimer(){
+t=60;
+tempo.innerText=t;
+}
+
+</script>
+
+</body>
+</html>
