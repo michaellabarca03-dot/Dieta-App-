@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mike's GYM</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+--bg:#f2f2f7;
+--card:#ffffff;
+--accent:#0a84ff;
+--text:#111;
+--sub:#6e6e73;
+--danger:#ff3b30;
+}
+
+/* BASE */
+body{
+margin:0;
+font-family:-apple-system, BlinkMacSystemFont;
+background:var(--bg);
+color:var(--text);
+}
+
+/* HEADER */
+.header{
+padding:25px 20px 10px;
+font-size:32px;
+font-weight:800;
+}
+
+/* CARD */
+.card{
+background:var(--card);
+border-radius:20px;
+padding:16px;
+margin:12px 15px;
+box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+/* INPUT */
+input,select{
+width:100%;
+padding:14px;
+margin-top:8px;
+border-radius:14px;
+border:1px solid #e5e5ea;
+background:#fafafa;
+font-size:15px;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:14px;
+margin-top:8px;
+border-radius:14px;
+border:none;
+background:var(--accent);
+color:white;
+font-weight:600;
+}
+
+/* NAVBAR */
+.navbar{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+justify-content:space-around;
+background:white;
+border-top:1px solid #ddd;
+padding:10px 0;
+}
+
+.navbar div{
+font-size:20px;
+opacity:0.4;
+}
+
+.navbar .active{
+opacity:1;
+color:var(--accent);
+}
+
+/* SECTION */
+.section{display:none;}
+.activeSection{display:block;}
+
+/* TIMER */
+.timer{
+font-size:60px;
+text-align:center;
+font-weight:700;
+}
+
+/* LISTA DIETA */
+#list div{
+display:flex;
+justify-content:space-between;
+padding:8px 0;
+border-bottom:1px solid #eee;
+}
+
+/* ESERCIZI */
+.exerciseCard{
+background:white;
+border-radius:18px;
+padding:14px;
+margin:10px 15px;
+border:1px solid #eee;
+}
+
+.exerciseCard b{
+font-size:16px;
+display:block;
+margin-bottom:6px;
+}
+
+.smallBtn{
+padding:10px;
+font-size:13px;
+margin-top:5px;
+}
+
+/* STATUS */
+[id^="status_"]{
+font-size:12px;
+color:green;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Mike's GYM</div>
+
+<!-- DIETA -->
+<div id="dieta" class="section activeSection">
+<div class="card">
+<input id="nome" placeholder="Alimento">
+<input id="kcal" type="number" placeholder="Kcal">
+<button onclick="addFood()">Aggiungi</button>
+<button onclick="resetDay()">Reset</button>
+</div>
+
+<div class="card">
+<select id="day" onchange="changeDay()">
+<option value="carica">Carica</option>
+<option value="scarica">Scarica</option>
+</select>
+
+<div id="list"></div>
+<h3 id="total"></h3>
+</div>
+
+<div class="card"><canvas id="chart"></canvas></div>
+</div>
+
+<!-- TIMER -->
+<div id="timer" class="section">
+<div class="card">
+
+<div class="timer" id="time">60</div>
+
+<button onclick="setTime(60)">60 sec</button>
+<button onclick="setTime(75)">75 sec</button>
+<button onclick="setTime(90)">90 sec</button>
+
+<button onclick="start()">Start</button>
+<button onclick="reset()">Reset</button>
+
+</div>
+</div>
+
+<!-- PESO -->
+<div id="user" class="section">
+<div class="card">
+<input id="w" placeholder="Peso">
+<button onclick="saveUser()">Salva peso</button>
+<p id="info"></p>
+<canvas id="weightChart"></canvas>
+</div>
+</div>
+
+<!-- WORKOUT -->
+<div id="workout" class="section">
+
+<div class="card">
+<select id="workoutDay" onchange="changeWorkoutDay()">
+<option value="A">Workout A</option>
+<option value="B">Workout B</option>
+<option value="C">Workout C</option>
+<option value="D">Workout D</option>
+<option value="E">Workout E</option>
+</select>
+</div>
+
+<div class="card">
+<input id="newExercise" placeholder="Nuovo esercizio">
+<button onclick="addExercise()">Aggiungi</button>
+</div>
+
+<div id="exerciseList"></div>
+
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="tab('dieta',this)" class="active">🍽️</div>
+<div onclick="tab('timer',this)">⏱️</div>
+<div onclick="tab('user',this)">⚖️</div>
+<div onclick="tab('workout',this)">💪</div>
+</div>
+
+<script>
+
+// NAV
+function tab(id,el){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('activeSection'));
+document.getElementById(id).classList.add('activeSection');
+
+document.querySelectorAll('.navbar div').forEach(d=>d.classList.remove('active'));
+el.classList.add('active');
+}
+
+// DIETA
+let data=JSON.parse(localStorage.getItem("diet"))||{carica:[],scarica:[]};
+let current="carica";
+
+function addFood(){
+let n=nome.value;
+let k=parseInt(kcal.value);
+if(!n||!k)return;
+
+data[current].push({n,k});
+localStorage.setItem("diet",JSON.stringify(data));
+
+nome.value="";kcal.value="";
+render();
+}
+
+function resetDay(){
+data[current]=[];
+localStorage.setItem("diet",JSON.stringify(data));
+render();
+}
+
+function changeDay(){current=day.value;render();}
+
+function render(){
+list.innerHTML="";
+let tot=0;
+
+data[current].forEach(f=>{
+tot+=f.k;
+list.innerHTML+=`<div>${f.n} ${f.k}</div>`;
+});
+
+total.innerText=tot+" kcal";
+updateChart();
+}
+
+// CHART
+let chart=new Chart(document.getElementById('chart'),{
+type:'doughnut',
+data:{labels:['Calorie'],datasets:[{data:[0,3000],backgroundColor:['#0a84ff','#e5e5ea']}]}
+});
+
+function updateChart(){
+let tot=data[current].reduce((a,b)=>a+b.k,0);
+chart.data.datasets[0].data=[tot,3000-tot];
+chart.update();
+}
+
+// TIMER
+let t=60,base=60,int;
+
+function setTime(x){t=x;base=x;time.innerText=t;}
+function start(){
+clearInterval(int);
+int=setInterval(()=>{
+t--;time.innerText=t;
+if(t<=0)clearInterval(int);
+},1000);
+}
+function reset(){t=base;time.innerText=t;}
+
+// PESO
+let weights=JSON.parse(localStorage.getItem("weights"))||[];
+
+function saveUser(){
+let peso=w.value;
+let date=new Date().toLocaleDateString();
+
+weights.push({peso,date});
+localStorage.setItem("weights",JSON.stringify(weights));
+
+info.innerText=`Ultimo peso: ${peso} kg`;
+updateWeightChart();
+}
+
+let weightChart=new Chart(document.getElementById('weightChart'),{
+type:'line',
+data:{labels:[],datasets:[{label:'Peso',data:[],borderColor:'#0a84ff'}]}
+});
+
+function updateWeightChart(){
+weightChart.data.labels=weights.map(w=>w.date);
+weightChart.data.datasets[0].data=weights.map(w=>w.peso);
+weightChart.update();
+}
+
+// WORKOUT
+let workouts=JSON.parse(localStorage.getItem("workouts"))||{A:[],B:[],C:[],D:[],E:[]};
+let currentWorkout="A";
+
+function changeWorkoutDay(){
+currentWorkout=workoutDay.value;
+renderWorkout();
+}
+
+function addExercise(){
+let name=newExercise.value;
+if(!name)return;
+
+workouts[currentWorkout].push({name,sets:"",reps:"",weight:"",note:"",history:[]});
+localStorage.setItem("workouts",JSON.stringify(workouts));
+
+newExercise.value="";
+renderWorkout();
+}
+
+function renderWorkout(){
+exerciseList.innerHTML="";
+
+workouts[currentWorkout].forEach((ex,i)=>{
+exerciseList.innerHTML+=`
+<div class="exerciseCard">
+
+<b>${ex.name}</b>
+
+<input id="sets_${i}" placeholder="Serie" value="${ex.sets}">
+<input id="reps_${i}" placeholder="Reps" value="${ex.reps}">
+<input id="weight_${i}" placeholder="Peso" value="${ex.weight}">
+<input id="note_${i}" placeholder="Note" value="${ex.note}">
+
+<button class="smallBtn" onclick="saveExercise(${i})">💾 Salva</button>
+<button class="smallBtn" onclick="completeSet(${i})">✅ Set</button>
+<button class="smallBtn" onclick="resetFields(${i})">🔄 Reset</button>
+
+<button class="smallBtn" onclick="startRest(60)">Rest 60</button>
+<button class="smallBtn" onclick="startRest(90)">Rest 90</button>
+
+<button class="smallBtn" onclick="deleteExercise(${i})" style="background:#ff3b30;">Elimina</button>
+
+<div id="status_${i}"></div>
+
+<div style="font-size:11px;">
+${ex.history.map(h=>`<div>${h}</div>`).join("")}
+</div>
+
+</div>`;
+});
+}
+
+function saveExercise(i){
+let ex=workouts[currentWorkout][i];
+
+ex.sets=document.getElementById(`sets_${i}`).value;
+ex.reps=document.getElementById(`reps_${i}`).value;
+ex.weight=document.getElementById(`weight_${i}`).value;
+ex.note=document.getElementById(`note_${i}`).value;
+
+localStorage.setItem("workouts",JSON.stringify(workouts));
+
+let s=document.getElementById(`status_${i}`);
+s.innerText="Salvato ✔";
+setTimeout(()=>s.innerText="",1500);
+}
+
+function completeSet(i){
+let ex=workouts[currentWorkout][i];
+let date=new Date().toLocaleDateString();
+
+ex.history.unshift(`${date} - ${ex.sets}x${ex.reps} ${ex.weight}kg`);
+localStorage.setItem("workouts",JSON.stringify(workouts));
+renderWorkout();
+}
+
+function resetFields(i){
+let ex=workouts[currentWorkout][i];
+ex.sets="";ex.reps="";ex.weight="";ex.note="";
+localStorage.setItem("workouts",JSON.stringify(workouts));
+renderWorkout();
+}
+
+function deleteExercise(i){
+workouts[currentWorkout].splice(i,1);
+localStorage.setItem("workouts",JSON.stringify(workouts));
+renderWorkout();
+}
+
+function startRest(sec){
+t=sec;base=sec;
+time.innerText=t;
+tab('timer',document.querySelectorAll('.navbar div')[1]);
+start();
+}
+
+// INIT
+render();
+renderWorkout();
+updateWeightChart();
+
+</script>
+
+</body>
+</html>
