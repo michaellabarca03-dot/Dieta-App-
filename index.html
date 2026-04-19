@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GYM PRO</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:-apple-system, BlinkMacSystemFont;
+background:#0b0b0c;
+color:white;
+overflow-x:hidden;
+}
+
+.header{
+padding:20px;
+font-size:30px;
+font-weight:700;
+}
+
+.card{
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(25px);
+border-radius:25px;
+padding:18px;
+margin:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+animation:fade 0.4s ease;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;}
+}
+
+input,select{
+width:100%;
+padding:14px;
+margin-top:10px;
+border-radius:14px;
+border:none;
+background:#1c1c1e;
+color:white;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border-radius:14px;
+border:none;
+background:#0a84ff;
+color:white;
+font-weight:600;
+}
+
+button:active{transform:scale(0.96);}
+
+.item{
+display:flex;
+justify-content:space-between;
+padding:12px 0;
+border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+.navbar{
+position:fixed;
+bottom:0;
+width:100%;
+display:flex;
+justify-content:space-around;
+background:rgba(20,20,20,0.85);
+backdrop-filter:blur(20px);
+padding:12px 0;
+}
+
+.navbar div{
+font-size:22px;
+opacity:0.4;
+transition:0.3s;
+}
+
+.navbar .active{
+opacity:1;
+transform:scale(1.2);
+}
+
+.section{
+position:absolute;
+width:100%;
+top:70px;
+left:0;
+transition:0.4s;
+opacity:0;
+transform:translateX(50px);
+}
+
+.activeSection{
+opacity:1;
+transform:translateX(0);
+}
+
+.timer{
+font-size:60px;
+text-align:center;
+margin:20px 0;
+}
+
+.progress{
+height:12px;
+background:#222;
+border-radius:20px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.progress div{
+height:100%;
+background:#00ff88;
+width:0%;
+transition:0.5s;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">GYM PRO</div>
+
+<!-- DIETA -->
+<div id="dieta" class="section activeSection">
+<div class="card">
+<input id="nome" placeholder="Alimento">
+<input id="kcal" type="number" placeholder="Kcal">
+<button onclick="addFood()">Aggiungi</button>
+</div>
+
+<div class="card">
+<select id="day" onchange="changeDay()">
+<option value="carica">Carica</option>
+<option value="scarica">Scarica</option>
+</select>
+
+<div id="list"></div>
+<h3 id="total"></h3>
+<div class="progress"><div id="bar"></div></div>
+</div>
+
+<div class="card">
+<canvas id="chart"></canvas>
+</div>
+</div>
+
+<!-- TIMER -->
+<div id="timer" class="section">
+<div class="card">
+<div class="timer" id="time">60</div>
+<button onclick="start()">Start</button>
+<button onclick="reset()">Reset</button>
+</div>
+</div>
+
+<!-- USER -->
+<div id="user" class="section">
+<div class="card">
+<input id="h" placeholder="Altezza">
+<input id="w" placeholder="Peso">
+<button onclick="saveUser()">Salva</button>
+<p id="info"></p>
+</div>
+</div>
+
+<!-- WORKOUT -->
+<div id="workout" class="section">
+
+<div class="card">
+<select id="workoutDay" onchange="changeWorkoutDay()">
+<option value="A">Workout A</option>
+<option value="B">Workout B</option>
+<option value="C">Workout C</option>
+<option value="D">Workout D</option>
+<option value="E">Workout E</option>
+</select>
+</div>
+
+<div class="card">
+<input id="newExercise" placeholder="Nuovo esercizio">
+<button onclick="addExercise()">Aggiungi esercizio</button>
+</div>
+
+<div class="card" id="exerciseList"></div>
+
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="tab('dieta',this)" class="active">🍽️</div>
+<div onclick="tab('timer',this)">⏱️</div>
+<div onclick="tab('user',this)">👤</div>
+<div onclick="tab('workout',this)">💪</div>
+</div>
+
+<script>
+
+// NAV
+function tab(id,el){
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('activeSection'));
+document.getElementById(id).classList.add('activeSection');
+
+document.querySelectorAll('.navbar div').forEach(d=>d.classList.remove('active'));
+el.classList.add('active');
+}
+
+// DIETA
+let data=JSON.parse(localStorage.getItem("diet"))||{carica:[],scarica:[]};
+let current="carica";
+
+function save(){localStorage.setItem("diet",JSON.stringify(data));}
+
+function addFood(){
+let n=nome.value;
+let k=parseInt(kcal.value);
+if(!n||!k)return;
+data[current].push({n,k});
+save();
+render();
+}
+
+function changeDay(){
+current=day.value;
+render();
+}
+
+function render(){
+list.innerHTML="";
+let tot=0;
+
+data[current].forEach(f=>{
+tot+=f.k;
+list.innerHTML+=`<div class="item">${f.n} ${f.k}</div>`;
+});
+
+total.innerText=tot+" kcal";
+bar.style.width=Math.min((tot/3000)*100,100)+"%";
+updateChart();
+}
+
+// CHART
+let chart=new Chart(document.getElementById('chart'),{
+type:'doughnut',
+data:{labels:['Calorie'],datasets:[{data:[0,3000],backgroundColor:['#0a84ff','#222']}]}
+});
+
+function updateChart(){
+let tot=data[current].reduce((a,b)=>a+b.k,0);
+chart.data.datasets[0].data=[tot,3000-tot];
+chart.update();
+}
+
+// TIMER
+let t=60,int;
+function start(){
+clearInterval(int);
+int=setInterval(()=>{
+t--;
+time.innerText=t;
+if(t<=0)clearInterval(int);
+},1000);
+}
+function reset(){t=60;time.innerText=t;}
+
+// USER
+function saveUser(){
+let u={h:h.value,w:w.value};
+localStorage.setItem("user",JSON.stringify(u));
+info.innerText=`${u.h} cm - ${u.w} kg`;
+}
+
+// WORKOUT
+let workouts=JSON.parse(localStorage.getItem("workouts"))||{A:[],B:[],C:[],D:[],E:[]};
+let currentWorkout="A";
+
+function saveWorkouts(){localStorage.setItem("workouts",JSON.stringify(workouts));}
+
+function changeWorkoutDay(){
+currentWorkout=workoutDay.value;
+renderWorkout();
+}
+
+function addExercise(){
+let name=newExercise.value;
+if(!name)return;
+
+workouts[currentWorkout].push({name,sets:"",reps:"",weight:"",history:[]});
+saveWorkouts();
+renderWorkout();
+}
+
+function renderWorkout(){
+exerciseList.innerHTML="";
+workouts[currentWorkout].forEach((ex,i)=>{
+exerciseList.innerHTML+=`
+<div class="card">
+<b>${ex.name}</b>
+
+<input placeholder="Serie" value="${ex.sets}" onchange="updateExercise(${i},'sets',this.value)">
+<input placeholder="Ripetizioni" value="${ex.reps}" onchange="updateExercise(${i},'reps',this.value)">
+<input placeholder="Peso" value="${ex.weight}" onchange="updateExercise(${i},'weight',this.value)">
+
+<button onclick="saveProgress(${i})">Salva progresso</button>
+<button onclick="deleteExercise(${i})" style="background:#ff3b30;">Elimina</button>
+
+<div style="font-size:12px;opacity:0.6;">
+${ex.history.map(h=>`<div>${h}</div>`).join("")}
+</div>
+</div>`;
+});
+}
+
+function updateExercise(i,key,val){
+workouts[currentWorkout][i][key]=val;
+saveWorkouts();
+}
+
+function deleteExercise(i){
+workouts[currentWorkout].splice(i,1);
+saveWorkouts();
+renderWorkout();
+}
+
+function saveProgress(i){
+let ex=workouts[currentWorkout][i];
+let log=`${ex.sets}x${ex.reps} - ${ex.weight}kg`;
+ex.history.push(log);
+saveWorkouts();
+renderWorkout();
+}
+
+// INIT
+render();
+renderWorkout();
+
+</script>
+
+</body>
+</html>
